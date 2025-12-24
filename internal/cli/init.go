@@ -57,6 +57,8 @@ func runInit() error {
 		registryPath = paths.RegistryDir
 	}
 
+	createStructure := false
+
 	// Interactive mode
 	if !initNonInteractive {
 		reader := bufio.NewReader(os.Stdin)
@@ -71,6 +73,15 @@ func runInit() error {
 		if input != "" {
 			registryPath = expandPath(input)
 		}
+
+		// Explain folder-structure agnostic nature
+		fmt.Println()
+		fmt.Println("Note: regis3 is folder-structure agnostic. You can organize your")
+		fmt.Println("registry however you like - the structure does not affect functionality.")
+		fmt.Println()
+		fmt.Print("Create default folder structure (skills/, agents/, etc.)? [y/N]: ")
+		input, _ = reader.ReadString('\n')
+		createStructure = strings.ToLower(strings.TrimSpace(input)) == "y"
 	}
 
 	// Create directories
@@ -81,23 +92,32 @@ func runInit() error {
 		return err
 	}
 
-	// Create standard subdirectories
-	subdirs := []string{
-		"skills",
-		"agents",
-		"commands",
-		"philosophies",
-		"docs",
-		"prompts",
-		".build",
+	// Always create .build directory for manifest
+	buildDir := filepath.Join(registryPath, ".build")
+	if err := os.MkdirAll(buildDir, 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating .build: %v\n", err)
+		return err
 	}
 
-	for _, subdir := range subdirs {
-		dir := filepath.Join(registryPath, subdir)
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating %s: %v\n", subdir, err)
-			return err
+	// Create default folder structure only if user requested
+	if createStructure {
+		subdirs := []string{
+			"skills",
+			"agents",
+			"commands",
+			"philosophies",
+			"docs",
+			"prompts",
 		}
+
+		for _, subdir := range subdirs {
+			dir := filepath.Join(registryPath, subdir)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				fmt.Fprintf(os.Stderr, "Error creating %s: %v\n", subdir, err)
+				return err
+			}
+		}
+		fmt.Println("Created default folder structure.")
 	}
 
 	// Create config
@@ -128,7 +148,10 @@ func runInit() error {
 	fmt.Println("  1. Add markdown files with regis3 frontmatter to the registry")
 	fmt.Println("  2. Run 'regis3 build' to build the manifest")
 	fmt.Println("  3. Run 'regis3 list' to see available items")
-	fmt.Println("  4. Run 'regis3 add <type:name>' to install items")
+	fmt.Println("  4. Run 'regis3 project add <type:name>' to install items")
+	fmt.Println()
+	fmt.Println("Tip: Organize your registry however you like - regis3 scans all")
+	fmt.Println("     subdirectories and is folder-structure agnostic.")
 
 	return nil
 }
