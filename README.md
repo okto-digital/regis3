@@ -31,6 +31,48 @@ You maintain a **registry** (a central folder of skills, agents, philosophies, e
 
 ## Installation
 
+### Binary Download (Recommended)
+
+Download the latest release for your platform:
+
+**macOS (Apple Silicon):**
+```bash
+curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_darwin_arm64.tar.gz | tar xz
+sudo mv regis3 /usr/local/bin/
+```
+
+**macOS (Intel):**
+```bash
+curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_darwin_amd64.tar.gz | tar xz
+sudo mv regis3 /usr/local/bin/
+```
+
+**Linux (amd64):**
+```bash
+curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.tar.gz | tar xz
+sudo mv regis3 /usr/local/bin/
+```
+
+**Linux (arm64):**
+```bash
+curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_arm64.tar.gz | tar xz
+sudo mv regis3 /usr/local/bin/
+```
+
+### Linux Packages
+
+**Debian/Ubuntu (.deb):**
+```bash
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.deb
+sudo dpkg -i regis3_1.0.0_linux_amd64.deb
+```
+
+**RHEL/Fedora (.rpm):**
+```bash
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.rpm
+sudo rpm -i regis3_1.0.0_linux_amd64.rpm
+```
+
 ### Using Go
 
 ```bash
@@ -45,46 +87,25 @@ cd regis3
 make install
 ```
 
-### Using Homebrew (macOS/Linux)
-
-```bash
-brew install okto-digital/tap/regis3
-```
-
 ## Updating
 
-### Using Go
+Download the latest release and replace the binary, or:
 
 ```bash
+# Using Go
 go install github.com/okto-digital/regis3/cmd/regis3@latest
-```
 
-### From Source
-
-```bash
-cd regis3
-git pull
-make install
-```
-
-### Using Homebrew
-
-```bash
-brew upgrade regis3
+# From source
+cd regis3 && git pull && make install
 ```
 
 ## Uninstalling
 
-### Using Go
-
 ```bash
+# Remove binary
+sudo rm /usr/local/bin/regis3
+# or if installed via Go
 rm $(go env GOPATH)/bin/regis3
-```
-
-### Using Homebrew
-
-```bash
-brew uninstall regis3
 ```
 
 ### Removing regis3 Data
