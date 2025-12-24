@@ -1,0 +1,88 @@
+# Claude Code / Claude Desktop Target Configuration
+# This defines how regis3 items are installed for Claude-based tools.
+
+name: claude
+description: Claude Code / Claude Desktop target
+version: "1.0.0"
+
+# Base directory for installations (relative to project root)
+base_dir: .claude
+
+# File where merge types (philosophy, project, ruleset) are combined
+merge_file: CLAUDE.md
+
+# Path configurations for each item type
+paths:
+  skill:
+    dir: skills
+    pattern: SKILL.md
+    subdirs: true  # Each skill gets its own subdirectory
+
+  subagent:
+    dir: agents
+    pattern: "{name}.md"
+    subdirs: false
+
+  command:
+    dir: commands
+    pattern: "{name}.md"
+    subdirs: false
+
+  mcp:
+    dir: mcp
+    pattern: "{name}.json"
+    subdirs: false
+
+  script:
+    dir: scripts
+    pattern: "{name}.sh"
+    subdirs: false
+
+  doc:
+    dir: docs
+    pattern: "{name}.md"
+    subdirs: false
+
+  hook:
+    dir: hooks
+    pattern: "{name}.md"
+    subdirs: false
+
+  prompt:
+    dir: prompts
+    pattern: "{name}.md"
+    subdirs: false
+
+  # Merge types don't have paths - they merge into CLAUDE.md
+  philosophy: {}
+  project: {}
+  ruleset: {}
+
+  # Stack is a meta-type - no direct installation
+  stack: {}
+
+# Content transformations for each type
+transforms:
+  skill:
+    strip_frontmatter: true
+
+  subagent:
+    strip_frontmatter: true
+
+  command:
+    strip_frontmatter: true
+
+  philosophy:
+    strip_frontmatter: true
+
+  project:
+    strip_frontmatter: true
+
+  ruleset:
+    strip_frontmatter: true
+
+  doc:
+    strip_frontmatter: true
+
+  prompt:
+    strip_frontmatter: true

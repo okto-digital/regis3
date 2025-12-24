@@ -133,15 +133,32 @@ This file tracks the implementation progress of the regis3 CLI tool.
 
 ## Phase 5: Installation & Targets
 
-**Status:** Pending
+**Status:** Complete
+**Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Tasks
 
-- [ ] Create `internal/installer/targets.go`
-- [ ] Create `internal/installer/transform.go`
-- [ ] Create `internal/installer/installer.go`
-- [ ] Create `targets/claude.yaml`
-- [ ] Implement CLAUDE.md merging
+- [x] Create `internal/installer/targets.go` - Target definitions and path mapping
+- [x] Create `internal/installer/transform.go` - Content transformations
+- [x] Create `internal/installer/tracker.go` - Installation tracking
+- [x] Create `internal/installer/installer.go` - Main installation logic
+- [x] Create `internal/installer/installer_test.go` - Comprehensive tests
+- [x] Create `targets/claude.yaml` - Claude Code target definition
+- [x] Implement CLAUDE.md merging with managed sections
+- [x] Implement dependency resolution during install
+
+### Deliverables
+
+- [x] Target configuration with path patterns for each item type
+- [x] Content transformer (strip frontmatter, wrap content)
+- [x] Installation tracker (.claude/installed.json)
+- [x] Installer with Install, Uninstall, Status operations
+- [x] Merge types (philosophy, project, ruleset) → CLAUDE.md
+- [x] Install types (skill, subagent, command, etc.) → separate files
+- [x] Managed section markers (regis3:start/end) for CLAUDE.md
+- [x] Source hash tracking for update detection
+- [x] Dry-run mode for previewing installations
 
 ---
 
@@ -258,7 +275,7 @@ regis3 reindex               # Rebuild manifest after moving files
 | 2 | ✅ Complete | Registry Scanner & Validator |
 | 3 | ✅ Complete | Dependency Resolution |
 | 4 | ✅ Complete | Output Formatting |
-| 5 | ⏳ Pending | Installation & Targets |
+| 5 | ✅ Complete | Installation & Targets |
 | 6 | ⏳ Pending | CLI Commands (Core) |
 | 7 | ⏳ Pending | Polish & Distribution |
 | 8 | ⏳ Pending | Import & Scan External Files |
