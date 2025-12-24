@@ -28,7 +28,12 @@ Examples:
 var configGetCmd = &cobra.Command{
 	Use:   "get <key>",
 	Short: "Get a configuration value",
-	Args:  cobra.ExactArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing key\n\nUsage: regis3 config get <key>\n\nKeys: registry, target")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runConfigGet(args[0])
 	},
@@ -37,7 +42,15 @@ var configGetCmd = &cobra.Command{
 var configSetCmd = &cobra.Command{
 	Use:   "set <key> <value>",
 	Short: "Set a configuration value",
-	Args:  cobra.ExactArgs(2),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing key and value\n\nUsage: regis3 config set <key> <value>\n\nExample: regis3 config set registry ~/my-registry")
+		}
+		if len(args) == 1 {
+			return fmt.Errorf("missing value for '%s'\n\nUsage: regis3 config set <key> <value>", args[0])
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runConfigSet(args[0], args[1])
 	},

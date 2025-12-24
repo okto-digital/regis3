@@ -17,7 +17,12 @@ var searchCmd = &cobra.Command{
 Examples:
   regis3 search git           # Find items containing 'git'
   regis3 search "clean code"  # Find items containing 'clean code'`,
-	Args: cobra.ExactArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing search query\n\nUsage: regis3 search <query>\n\nExample: regis3 search git")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSearch(args[0])
 	},

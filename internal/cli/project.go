@@ -48,7 +48,12 @@ Examples:
   regis3 project add skill:git-conventions
   regis3 project add skill:git-conventions skill:clean-code
   regis3 project add stack:vue-fullstack`,
-	Args: cobra.MinimumNArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing item reference\n\nUsage: regis3 project add <type:name> [type:name...]\n\nExample: regis3 project add skill:git-conventions")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runProjectAdd(args)
 	},
@@ -64,7 +69,12 @@ var projectRemoveCmd = &cobra.Command{
 Examples:
   regis3 project remove skill:git-conventions
   regis3 project rm skill:git-conventions skill:clean-code`,
-	Args: cobra.MinimumNArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing item reference\n\nUsage: regis3 project remove <type:name> [type:name...]\n\nExample: regis3 project remove skill:git-conventions")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runProjectRemove(args)
 	},

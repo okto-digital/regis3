@@ -17,7 +17,12 @@ var infoCmd = &cobra.Command{
 Examples:
   regis3 info skill:git-conventions
   regis3 info subagent:code-reviewer`,
-	Args: cobra.ExactArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing item reference\n\nUsage: regis3 info <type:name>\n\nExample: regis3 info skill:git-conventions")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInfo(args[0])
 	},

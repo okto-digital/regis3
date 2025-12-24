@@ -22,7 +22,15 @@ staging directory for manual review.
 Examples:
   regis3 scan ~/Documents/prompts
   regis3 scan ./my-skills --dry-run`,
-	Args: cobra.ExactArgs(1),
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("missing path argument\n\nUsage: regis3 scan <path>\n\nExample: regis3 scan ~/Documents/prompts")
+		}
+		if len(args) > 1 {
+			return fmt.Errorf("too many arguments - only one path allowed")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runScan(args[0])
 	},
