@@ -218,7 +218,9 @@ When user runs `regis3` for the first time (no config exists):
 
 ## Phase 8: Import & Scan External Files
 
-**Status:** Pending
+**Status:** Complete
+**Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Goal
 
@@ -247,13 +249,27 @@ Scan filesystem for existing files and import them into the registry.
 
 ### Tasks
 
-- [ ] Create `internal/cli/scan.go` - Scan external paths for files
-- [ ] Create `internal/importer/scanner.go` - Find .md files recursively
-- [ ] Create `internal/importer/classifier.go` - Check if file has valid regis3 YAML
-- [ ] Create `internal/cli/import.go` - Process import/ staging folder
-- [ ] Create `internal/cli/reindex.go` - Rebuild manifest when files are moved
-- [ ] Handle file conflicts (same name exists)
-- [ ] Support `--dry-run` flag to preview what would be imported
+- [x] Create `internal/importer/scanner.go` - External directory scanner
+- [x] Create `internal/importer/classifier.go` - File classifier with type suggestions
+- [x] Create `internal/importer/importer.go` - Import workflow
+- [x] Create `internal/importer/importer_test.go` - 15 tests
+- [x] Handle file conflicts (same name exists - skipped)
+- [x] Support `--dry-run` flag in Importer.DryRun field
+- [ ] Create `internal/cli/scan.go` - Scan external paths (Phase 6)
+- [ ] Create `internal/cli/import.go` - Process import/ staging folder (Phase 6)
+- [ ] Create `internal/cli/reindex.go` - Rebuild manifest (Phase 6)
+
+### Deliverables
+
+- [x] ExternalScanner that finds markdown files recursively
+- [x] Skips hidden directories, node_modules, vendor, etc.
+- [x] Detects frontmatter and regis3 blocks
+- [x] Classifier that suggests types based on directory, filename, content
+- [x] GenerateFrontmatter to create regis3 YAML
+- [x] AddFrontmatterToContent to inject/replace frontmatter
+- [x] Importer with ScanAndImport, ProcessStaging, ListPending
+- [x] Staging directory (import/) for files without regis3 headers
+- [x] Reindex via registry.BuildRegistry
 
 ### Commands
 
@@ -278,7 +294,7 @@ regis3 reindex               # Rebuild manifest after moving files
 | 5 | ✅ Complete | Installation & Targets |
 | 6 | ⏳ Pending | CLI Commands (Core) |
 | 7 | ⏳ Pending | Polish & Distribution |
-| 8 | ⏳ Pending | Import & Scan External Files |
+| 8 | ✅ Complete | Import & Scan External Files |
 
 ---
 
