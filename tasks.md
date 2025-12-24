@@ -164,22 +164,29 @@ This file tracks the implementation progress of the regis3 CLI tool.
 
 ## Phase 6: CLI Commands (Core)
 
-**Status:** Pending
+**Status:** Complete
+**Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Tasks
 
-- [ ] Create `internal/cli/root.go` - Root command, global flags
-- [ ] Create `internal/cli/build.go` - Build manifest
-- [ ] Create `internal/cli/validate.go` - Validate registry
-- [ ] Create `internal/cli/list.go` - List items
-- [ ] Create `internal/cli/search.go` - Search items
-- [ ] Create `internal/cli/info.go` - Show item details
-- [ ] Create `internal/cli/init.go` - Bootstrap project (first-run setup)
-- [ ] Create `internal/cli/add.go` - Install items
-- [ ] Create `internal/cli/status.go` - Show installed
-- [ ] Update `cmd/regis3/main.go` - Wire everything together
-- [ ] Add --format flag (pretty/json/quiet) to all commands
-- [ ] Add --debug flag for verbose output
+- [x] Create `internal/cli/root.go` - Root command, global flags
+- [x] Create `internal/cli/build.go` - Build manifest
+- [x] Create `internal/cli/validate.go` - Validate registry
+- [x] Create `internal/cli/list.go` - List items
+- [x] Create `internal/cli/search.go` - Search items
+- [x] Create `internal/cli/info.go` - Show item details
+- [x] Create `internal/cli/init.go` - Bootstrap project (first-run setup)
+- [x] Create `internal/cli/add.go` - Install items
+- [x] Create `internal/cli/remove.go` - Remove installed items
+- [x] Create `internal/cli/status.go` - Show installed
+- [x] Create `internal/cli/scan.go` - Scan external paths
+- [x] Create `internal/cli/import.go` - Process staging
+- [x] Create `internal/cli/reindex.go` - Rebuild manifest
+- [x] Create `internal/cli/version.go` - Show version info
+- [x] Update `cmd/regis3/main.go` - Wire everything together
+- [x] Add --format flag (pretty/json/quiet) to all commands
+- [x] Add --debug flag for verbose output
 
 ### First-Run Setup (`regis3 init`)
 
@@ -196,6 +203,16 @@ When user runs `regis3` for the first time (no config exists):
 - `--debug`: Enable debug output
 - `--config`: Custom config path
 - `--registry`: Override registry path
+
+### Deliverables
+
+- [x] 14 CLI commands: build, validate, list, search, info, init, add, remove, status, scan, import, reindex, version, help
+- [x] All commands support --format (pretty/json/quiet) flag
+- [x] All commands support --debug flag
+- [x] Root command with --config and --registry flags
+- [x] Pretty output with colors and icons
+- [x] JSON output for agent/script consumption
+- [x] Quiet output for piping
 
 ---
 
@@ -255,9 +272,6 @@ Scan filesystem for existing files and import them into the registry.
 - [x] Create `internal/importer/importer_test.go` - 15 tests
 - [x] Handle file conflicts (same name exists - skipped)
 - [x] Support `--dry-run` flag in Importer.DryRun field
-- [ ] Create `internal/cli/scan.go` - Scan external paths (Phase 6)
-- [ ] Create `internal/cli/import.go` - Process import/ staging folder (Phase 6)
-- [ ] Create `internal/cli/reindex.go` - Rebuild manifest (Phase 6)
 
 ### Deliverables
 
@@ -292,7 +306,7 @@ regis3 reindex               # Rebuild manifest after moving files
 | 3 | ✅ Complete | Dependency Resolution |
 | 4 | ✅ Complete | Output Formatting |
 | 5 | ✅ Complete | Installation & Targets |
-| 6 | ⏳ Pending | CLI Commands (Core) |
+| 6 | ✅ Complete | CLI Commands (Core) |
 | 7 | ⏳ Pending | Polish & Distribution |
 | 8 | ✅ Complete | Import & Scan External Files |
 

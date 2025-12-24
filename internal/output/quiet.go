@@ -43,19 +43,19 @@ func (w *QuietWriter) writeData(data interface{}) {
 	switch d := data.(type) {
 	case *ListData:
 		for _, item := range d.Items {
-			fmt.Fprintln(w.out, item.ID)
+			fmt.Fprintf(w.out, "%s:%s\n", item.Type, item.Name)
 		}
 	case *BuildData:
 		// Just output the count
-		fmt.Fprintln(w.out, d.Items)
+		fmt.Fprintln(w.out, d.ItemCount)
 	case *InfoData:
-		fmt.Fprintln(w.out, d.ID)
+		fmt.Fprintf(w.out, "%s:%s\n", d.Type, d.Name)
 	case *InstallData:
 		for _, item := range d.Installed {
-			fmt.Fprintln(w.out, item)
+			fmt.Fprintf(w.out, "%s:%s\n", item.Type, item.Name)
 		}
 	case *ValidateData:
-		if d.Valid {
+		if d.ErrorCount == 0 {
 			fmt.Fprintln(w.out, "valid")
 		} else {
 			fmt.Fprintln(w.out, "invalid")

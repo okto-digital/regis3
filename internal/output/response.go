@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -122,6 +123,74 @@ func NewBuilder(command string) *BuildResponse {
 	}
 }
 
+// NewResponseBuilder creates a new response builder (alias for NewBuilder).
+func NewResponseBuilder(command string) *ResponseBuilder {
+	return &ResponseBuilder{
+		resp: &Response{
+			Success: true,
+			Command: command,
+		},
+	}
+}
+
+// ResponseBuilder builds responses with a fluent interface.
+type ResponseBuilder struct {
+	resp *Response
+}
+
+// WithSuccess sets the success status.
+func (b *ResponseBuilder) WithSuccess(success bool) *ResponseBuilder {
+	b.resp.Success = success
+	return b
+}
+
+// WithData sets the response data.
+func (b *ResponseBuilder) WithData(data interface{}) *ResponseBuilder {
+	b.resp.Data = data
+	return b
+}
+
+// WithInfo adds an info message with formatting.
+func (b *ResponseBuilder) WithInfo(format string, args ...interface{}) *ResponseBuilder {
+	text := format
+	if len(args) > 0 {
+		text = fmt.Sprintf(format, args...)
+	}
+	b.resp.Messages = append(b.resp.Messages, Message{
+		Level: LevelInfo,
+		Text:  text,
+	})
+	return b
+}
+
+// WithWarning adds a warning message with formatting.
+func (b *ResponseBuilder) WithWarning(format string, args ...interface{}) *ResponseBuilder {
+	text := format
+	if len(args) > 0 {
+		text = fmt.Sprintf(format, args...)
+	}
+	b.resp.Messages = append(b.resp.Messages, Message{
+		Level: LevelWarning,
+		Text:  text,
+	})
+	return b
+}
+
+// WithError adds an error message.
+func (b *ResponseBuilder) WithError(path, message string) *ResponseBuilder {
+	b.resp.Messages = append(b.resp.Messages, Message{
+		Level:   LevelError,
+		Text:    message,
+		Details: path,
+	})
+	return b
+}
+
+// Build returns the constructed response.
+func (b *ResponseBuilder) Build() *Response {
+	return b.resp
+}
+
 // Data sets the response data.
 func (b *BuildResponse) Data(data interface{}) *BuildResponse {
 	b.resp.Data = data
@@ -174,57 +243,109 @@ func (b *BuildResponse) Build() *Response {
 
 // ListData is the response data for list commands.
 type ListData struct {
-	Items []ListItem `json:"items"`
-	Total int        `json:"total"`
+	Items      []ListItem `json:"items"`
+	TotalCount int        `json:"total_count"`
+	Filtered   bool       `json:"filtered,omitempty"`
 }
 
 // ListItem represents an item in a list.
 type ListItem struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	Desc string `json:"desc"`
+	Type string   `json:"type"`
+	Name string   `json:"name"`
+	Desc string   `json:"desc"`
+	Tags []string `json:"tags,omitempty"`
 }
 
 // BuildData is the response data for build commands.
 type BuildData struct {
-	Items    int           `json:"items"`
-	Errors   int           `json:"errors"`
-	Warnings int           `json:"warnings"`
-	Duration time.Duration `json:"duration"`
-	Path     string        `json:"path,omitempty"`
+	ItemCount    int    `json:"item_count"`
+	ManifestPath string `json:"manifest_path"`
+	Duration     string `json:"duration"`
 }
 
 // InfoData is the response data for info commands.
 type InfoData struct {
-	ID         string   `json:"id"`
-	Type       string   `json:"type"`
-	Name       string   `json:"name"`
-	Desc       string   `json:"desc"`
-	Tags       []string `json:"tags,omitempty"`
-	Deps       []string `json:"deps,omitempty"`
-	Dependents []string `json:"dependents,omitempty"`
-	Status     string   `json:"status,omitempty"`
-	Source     string   `json:"source,omitempty"`
+	Type         string   `json:"type"`
+	Name         string   `json:"name"`
+	Desc         string   `json:"desc"`
+	Path         string   `json:"path"`
+	Tags         []string `json:"tags,omitempty"`
+	Dependencies []string `json:"dependencies,omitempty"`
+	Files        []string `json:"files,omitempty"`
 }
 
 // InstallData is the response data for install/add commands.
 type InstallData struct {
-	Installed []string `json:"installed"`
-	Skipped   []string `json:"skipped,omitempty"`
-	Total     int      `json:"total"`
+	Installed []InstalledItem `json:"installed"`
+	Skipped   []string        `json:"skipped,omitempty"`
+	Target    string          `json:"target"`
+	DryRun    bool            `json:"dry_run,omitempty"`
+}
+
+// InstalledItem represents an installed item.
+type InstalledItem struct {
+	Type     string `json:"type"`
+	Name     string `json:"name"`
+	DestPath string `json:"dest_path"`
+}
+
+// RemoveData is the response data for remove commands.
+type RemoveData struct {
+	Removed  []InstalledItem `json:"removed"`
+	NotFound []string        `json:"not_found,omitempty"`
+	DryRun   bool            `json:"dry_run,omitempty"`
+}
+
+// StatusData is the response data for status commands.
+type StatusData struct {
+	Items  []StatusItem `json:"items"`
+	Target string       `json:"target"`
+}
+
+// StatusItem represents an installed item's status.
+type StatusItem struct {
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	InstalledAt string `json:"installed_at"`
+	DestPath    string `json:"dest_path"`
+	NeedsUpdate bool   `json:"needs_update,omitempty"`
 }
 
 // ValidateData is the response data for validate commands.
 type ValidateData struct {
-	Valid    bool            `json:"valid"`
-	Errors   []ValidateIssue `json:"errors,omitempty"`
-	Warnings []ValidateIssue `json:"warnings,omitempty"`
+	ItemCount  int `json:"item_count"`
+	ErrorCount int `json:"error_count"`
+	WarnCount  int `json:"warn_count"`
+	InfoCount  int `json:"info_count"`
 }
 
-// ValidateIssue represents a validation issue.
-type ValidateIssue struct {
-	Path    string `json:"path"`
-	Field   string `json:"field,omitempty"`
-	Message string `json:"message"`
+// ScanData is the response data for scan commands.
+type ScanData struct {
+	Imported []ImportedItem `json:"imported"`
+	Staged   []ImportedItem `json:"staged"`
+	Errors   []string       `json:"errors,omitempty"`
+	DryRun   bool           `json:"dry_run,omitempty"`
+}
+
+// ImportedItem represents an imported file.
+type ImportedItem struct {
+	SourcePath string `json:"source_path"`
+	DestPath   string `json:"dest_path"`
+	Type       string `json:"type"`
+	Name       string `json:"name"`
+}
+
+// ImportData is the response data for import commands.
+type ImportData struct {
+	Processed []ImportedItem `json:"processed"`
+	Pending   []PendingItem  `json:"pending"`
+	Errors    []string       `json:"errors,omitempty"`
+}
+
+// PendingItem represents a file pending in staging.
+type PendingItem struct {
+	Path          string `json:"path"`
+	SuggestedType string `json:"suggested_type"`
+	SuggestedName string `json:"suggested_name"`
+	Confidence    int    `json:"confidence"`
 }

@@ -98,14 +98,36 @@ func (w *PrettyWriter) writeData(data interface{}) {
 	switch d := data.(type) {
 	case *ListData:
 		w.writeListData(d)
+	case ListData:
+		w.writeListData(&d)
 	case *BuildData:
 		w.writeBuildData(d)
+	case BuildData:
+		w.writeBuildData(&d)
 	case *InfoData:
 		w.writeInfoData(d)
+	case InfoData:
+		w.writeInfoData(&d)
 	case *InstallData:
 		w.writeInstallData(d)
+	case InstallData:
+		w.writeInstallData(&d)
 	case *ValidateData:
 		w.writeValidateData(d)
+	case ValidateData:
+		w.writeValidateData(&d)
+	case *StatusData:
+		w.writeStatusData(d)
+	case StatusData:
+		w.writeStatusData(&d)
+	case *ScanData:
+		w.writeScanData(d)
+	case ScanData:
+		w.writeScanData(&d)
+	case *ImportData:
+		w.writeImportData(d)
+	case ImportData:
+		w.writeImportData(&d)
 	case []string:
 		w.List(d)
 	case map[string]interface{}:
@@ -128,28 +150,23 @@ func (w *PrettyWriter) writeListData(data *ListData) {
 	}
 
 	w.writeLine(w.out, "")
-	w.writeLine(w.out, "%s %d items", styleMuted.Render("Total:"), data.Total)
+	w.writeLine(w.out, "%s %d items", styleMuted.Render("Total:"), data.TotalCount)
 }
 
 // writeBuildData writes build response data.
 func (w *PrettyWriter) writeBuildData(data *BuildData) {
 	w.writeLine(w.out, "")
 	w.writeLine(w.out, "%s Build complete", iconSuccess)
-	w.writeLine(w.out, "   Items:    %d", data.Items)
-	if data.Errors > 0 {
-		w.writeLine(w.out, "   Errors:   %s", styleError.Render(fmt.Sprintf("%d", data.Errors)))
-	}
-	if data.Warnings > 0 {
-		w.writeLine(w.out, "   Warnings: %s", styleWarning.Render(fmt.Sprintf("%d", data.Warnings)))
-	}
-	w.writeLine(w.out, "   Duration: %v", data.Duration)
+	w.writeLine(w.out, "   Items:    %d", data.ItemCount)
+	w.writeLine(w.out, "   Path:     %s", data.ManifestPath)
+	w.writeLine(w.out, "   Duration: %s", data.Duration)
 }
 
 // writeInfoData writes info response data.
 func (w *PrettyWriter) writeInfoData(data *InfoData) {
 	typeStyle := w.getTypeStyle(data.Type)
 
-	w.writeLine(w.out, "%s", typeStyle.Render(data.ID))
+	w.writeLine(w.out, "%s", typeStyle.Render(data.Type+":"+data.Name))
 	w.writeLine(w.out, "")
 	w.writeLine(w.out, "%s", data.Desc)
 	w.writeLine(w.out, "")
@@ -162,27 +179,22 @@ func (w *PrettyWriter) writeInfoData(data *InfoData) {
 		w.writeLine(w.out, "Tags: %s", strings.Join(tags, " "))
 	}
 
-	if len(data.Deps) > 0 {
+	if len(data.Dependencies) > 0 {
 		w.writeLine(w.out, "Dependencies:")
-		for _, dep := range data.Deps {
+		for _, dep := range data.Dependencies {
 			w.writeLine(w.out, "  %s %s", iconArrow, dep)
 		}
 	}
 
-	if len(data.Dependents) > 0 {
-		w.writeLine(w.out, "Used by:")
-		for _, dep := range data.Dependents {
-			w.writeLine(w.out, "  %s %s", iconBullet, dep)
+	if len(data.Files) > 0 {
+		w.writeLine(w.out, "Files:")
+		for _, f := range data.Files {
+			w.writeLine(w.out, "  %s %s", iconBullet, f)
 		}
 	}
 
-	if data.Status != "" {
-		statusStyle := w.getStatusStyle(data.Status)
-		w.writeLine(w.out, "Status: %s", statusStyle.Render(data.Status))
-	}
-
-	if data.Source != "" {
-		w.writeLine(w.out, "Source: %s", styleMuted.Render(data.Source))
+	if data.Path != "" {
+		w.writeLine(w.out, "Source: %s", styleMuted.Render(data.Path))
 	}
 }
 
@@ -191,7 +203,8 @@ func (w *PrettyWriter) writeInstallData(data *InstallData) {
 	if len(data.Installed) > 0 {
 		w.writeLine(w.out, "%s Installed:", iconSuccess)
 		for _, item := range data.Installed {
-			w.writeLine(w.out, "  %s %s", iconArrow, item)
+			typeStyle := w.getTypeStyle(item.Type)
+			w.writeLine(w.out, "  %s %s", iconArrow, typeStyle.Render(item.Type+":"+item.Name))
 		}
 	}
 
@@ -202,31 +215,113 @@ func (w *PrettyWriter) writeInstallData(data *InstallData) {
 		}
 	}
 
-	w.writeLine(w.out, "")
-	w.writeLine(w.out, "Total: %d items", data.Total)
+	if data.DryRun {
+		w.writeLine(w.out, "")
+		w.writeLine(w.out, "%s (dry run - no changes made)", styleMuted.Render("Note:"))
+	}
 }
 
 // writeValidateData writes validate response data.
 func (w *PrettyWriter) writeValidateData(data *ValidateData) {
-	if data.Valid {
-		w.Success("Validation passed")
-	} else {
-		w.Error("Validation failed")
+	w.writeLine(w.out, "")
+	w.writeLine(w.out, "Validated %d items", data.ItemCount)
+
+	if data.ErrorCount > 0 {
+		w.writeLine(w.out, "  %s Errors:   %d", iconError, data.ErrorCount)
+	}
+	if data.WarnCount > 0 {
+		w.writeLine(w.out, "  %s Warnings: %d", iconWarning, data.WarnCount)
+	}
+	if data.InfoCount > 0 {
+		w.writeLine(w.out, "  %s Info:     %d", iconInfo, data.InfoCount)
 	}
 
-	if len(data.Errors) > 0 {
-		w.writeLine(w.out, "")
-		w.writeLine(w.out, "%s Errors:", iconError)
-		for _, issue := range data.Errors {
-			w.writeLine(w.out, "  %s %s", styleMuted.Render(issue.Path+":"), issue.Message)
+	if data.ErrorCount == 0 && data.WarnCount == 0 {
+		w.writeLine(w.out, "  %s All items valid", iconSuccess)
+	}
+}
+
+// writeStatusData writes status response data.
+func (w *PrettyWriter) writeStatusData(data *StatusData) {
+	if len(data.Items) == 0 {
+		w.Info("No items installed")
+		return
+	}
+
+	w.writeLine(w.out, "")
+	w.writeLine(w.out, "Installed items (%s):", styleMuted.Render(data.Target))
+	for _, item := range data.Items {
+		typeStyle := w.getTypeStyle(item.Type)
+		status := ""
+		if item.NeedsUpdate {
+			status = " " + styleWarning.Render("[update available]")
+		}
+		w.writeLine(w.out, "  %s %s%s",
+			iconBullet,
+			typeStyle.Render(item.Type+":"+item.Name),
+			status)
+	}
+}
+
+// writeScanData writes scan response data.
+func (w *PrettyWriter) writeScanData(data *ScanData) {
+	if len(data.Imported) > 0 {
+		if data.DryRun {
+			w.writeLine(w.out, "%s Would import:", iconInfo)
+		} else {
+			w.writeLine(w.out, "%s Imported:", iconSuccess)
+		}
+		for _, item := range data.Imported {
+			typeStyle := w.getTypeStyle(item.Type)
+			w.writeLine(w.out, "  %s %s", iconArrow, typeStyle.Render(item.Type+":"+item.Name))
 		}
 	}
 
-	if len(data.Warnings) > 0 {
+	if len(data.Staged) > 0 {
+		if data.DryRun {
+			w.writeLine(w.out, "%s Would stage:", iconWarning)
+		} else {
+			w.writeLine(w.out, "%s Staged (need regis3 frontmatter):", iconWarning)
+		}
+		for _, item := range data.Staged {
+			w.writeLine(w.out, "  %s %s", iconBullet, styleMuted.Render(item.SourcePath))
+		}
+	}
+
+	if len(data.Errors) > 0 {
+		w.writeLine(w.out, "%s Errors:", iconError)
+		for _, e := range data.Errors {
+			w.writeLine(w.out, "  %s %s", iconBullet, styleError.Render(e))
+		}
+	}
+
+	if data.DryRun {
 		w.writeLine(w.out, "")
-		w.writeLine(w.out, "%s Warnings:", iconWarning)
-		for _, issue := range data.Warnings {
-			w.writeLine(w.out, "  %s %s", styleMuted.Render(issue.Path+":"), issue.Message)
+		w.writeLine(w.out, "%s (dry run - no changes made)", styleMuted.Render("Note:"))
+	}
+}
+
+// writeImportData writes import response data.
+func (w *PrettyWriter) writeImportData(data *ImportData) {
+	if len(data.Processed) > 0 {
+		w.writeLine(w.out, "%s Processed:", iconSuccess)
+		for _, item := range data.Processed {
+			typeStyle := w.getTypeStyle(item.Type)
+			w.writeLine(w.out, "  %s %s", iconArrow, typeStyle.Render(item.Type+":"+item.Name))
+		}
+	}
+
+	if len(data.Pending) > 0 {
+		w.writeLine(w.out, "%s Pending (need regis3 frontmatter):", iconWarning)
+		for _, item := range data.Pending {
+			w.writeLine(w.out, "  %s %s", iconBullet, styleMuted.Render(item.Path))
+		}
+	}
+
+	if len(data.Errors) > 0 {
+		w.writeLine(w.out, "%s Errors:", iconError)
+		for _, e := range data.Errors {
+			w.writeLine(w.out, "  %s %s", iconBullet, styleError.Render(e))
 		}
 	}
 }

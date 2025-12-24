@@ -91,6 +91,25 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
+// LoadFromPath loads configuration from a specific path.
+func LoadFromPath(path string) (*Config, error) {
+	return Load(path)
+}
+
+// LoadDefault loads configuration from default location.
+func LoadDefault() (*Config, error) {
+	return Load("")
+}
+
+// DefaultRegistryPath returns the default registry path.
+func DefaultRegistryPath() string {
+	paths, err := NewPaths()
+	if err != nil {
+		return ""
+	}
+	return paths.RegistryDir
+}
+
 // Save saves the configuration to a file.
 func Save(cfg *Config, path string) error {
 	v := viper.New()
