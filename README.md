@@ -51,6 +51,54 @@ make install
 brew install okto-digital/tap/regis3
 ```
 
+## Updating
+
+### Using Go
+
+```bash
+go install github.com/okto-digital/regis3/cmd/regis3@latest
+```
+
+### From Source
+
+```bash
+cd regis3
+git pull
+make install
+```
+
+### Using Homebrew
+
+```bash
+brew upgrade regis3
+```
+
+## Uninstalling
+
+### Using Go
+
+```bash
+rm $(go env GOPATH)/bin/regis3
+```
+
+### Using Homebrew
+
+```bash
+brew uninstall regis3
+```
+
+### Removing regis3 Data
+
+To keep your registry but remove config:
+```bash
+rm ~/.regis3/config.yaml
+```
+
+To remove everything (config + registry):
+```bash
+rm -rf ~/.regis3
+```
+
 ## Quick Start
 
 ```bash
