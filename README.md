@@ -31,65 +31,86 @@ You maintain a **registry** (a central folder of skills, agents, philosophies, e
 
 ## Installation
 
-### Binary Download (Recommended)
+<details>
+<summary><b>macOS (Apple Silicon)</b></summary>
 
-Download the latest release for your platform:
-
-**macOS (Apple Silicon):**
 ```bash
 curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_darwin_arm64.tar.gz | tar xz
 sudo mv regis3 /usr/local/bin/
 ```
+</details>
 
-**macOS (Intel):**
+<details>
+<summary><b>macOS (Intel)</b></summary>
+
 ```bash
 curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_darwin_amd64.tar.gz | tar xz
 sudo mv regis3 /usr/local/bin/
 ```
+</details>
 
-**Linux (amd64):**
+<details>
+<summary><b>Linux (amd64)</b></summary>
+
 ```bash
 curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.tar.gz | tar xz
 sudo mv regis3 /usr/local/bin/
 ```
 
-**Linux (arm64):**
+Or via package manager:
+```bash
+# Debian/Ubuntu
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.deb
+sudo dpkg -i regis3_1.0.0_linux_amd64.deb
+
+# RHEL/Fedora
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.rpm
+sudo rpm -i regis3_1.0.0_linux_amd64.rpm
+```
+</details>
+
+<details>
+<summary><b>Linux (arm64)</b></summary>
+
 ```bash
 curl -L https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_arm64.tar.gz | tar xz
 sudo mv regis3 /usr/local/bin/
 ```
 
-### Linux Packages
-
-**Debian/Ubuntu (.deb):**
+Or via package manager:
 ```bash
-curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.deb
-sudo dpkg -i regis3_1.0.0_linux_amd64.deb
-```
+# Debian/Ubuntu
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_arm64.deb
+sudo dpkg -i regis3_1.0.0_linux_arm64.deb
 
-**RHEL/Fedora (.rpm):**
-```bash
-curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_amd64.rpm
-sudo rpm -i regis3_1.0.0_linux_amd64.rpm
+# RHEL/Fedora
+curl -LO https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_linux_arm64.rpm
+sudo rpm -i regis3_1.0.0_linux_arm64.rpm
 ```
+</details>
 
-### Using Go
+<details>
+<summary><b>Using Go</b></summary>
 
 ```bash
 go install github.com/okto-digital/regis3/cmd/regis3@latest
 ```
+</details>
 
-### From Source
+<details>
+<summary><b>From Source</b></summary>
 
 ```bash
 git clone https://github.com/okto-digital/regis3.git
 cd regis3
 make install
 ```
+</details>
 
-## Updating
+<details>
+<summary><b>Updating</b></summary>
 
-Download the latest release and replace the binary, or:
+Download the latest release for your platform and replace the binary, or:
 
 ```bash
 # Using Go
@@ -98,27 +119,27 @@ go install github.com/okto-digital/regis3/cmd/regis3@latest
 # From source
 cd regis3 && git pull && make install
 ```
+</details>
 
-## Uninstalling
+<details>
+<summary><b>Uninstalling</b></summary>
 
+Remove the binary:
 ```bash
-# Remove binary
 sudo rm /usr/local/bin/regis3
 # or if installed via Go
 rm $(go env GOPATH)/bin/regis3
 ```
 
-### Removing regis3 Data
-
-To keep your registry but remove config:
+Remove regis3 data:
 ```bash
+# Keep registry, remove config only
 rm ~/.regis3/config.yaml
-```
 
-To remove everything (config + registry):
-```bash
+# Remove everything
 rm -rf ~/.regis3
 ```
+</details>
 
 ## Quick Start
 
