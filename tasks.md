@@ -8,8 +8,9 @@ This file tracks the implementation progress of the regis3 CLI tool.
 
 ## Phase 1: Project Setup & Foundations
 
-**Status:** In Progress
+**Status:** Complete
 **Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Tasks
 
@@ -27,7 +28,7 @@ This file tracks the implementation progress of the regis3 CLI tool.
 - [x] Create `tasks.md` for progress tracking
 - [x] Create Makefile
 - [x] Create `cmd/regis3/main.go` stub
-- [ ] Initial git commit
+- [x] Initial git commit
 
 ### Deliverables
 
@@ -45,16 +46,31 @@ This file tracks the implementation progress of the regis3 CLI tool.
 
 ## Phase 2: Registry Scanner & Validator
 
-**Status:** Pending
+**Status:** Complete
+**Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Tasks
 
-- [ ] Create `internal/registry/scanner.go`
-- [ ] Create `internal/registry/validator.go`
-- [ ] Create `internal/registry/manifest.go`
-- [ ] Add table-driven tests for scanner
-- [ ] Add table-driven tests for validator
-- [ ] Test with sample registry files
+- [x] Create `internal/registry/scanner.go` - Walks registry, parses frontmatter
+- [x] Create `internal/registry/scanner_test.go` - 9 tests
+- [x] Create `internal/registry/validator.go` - Validates items with error/warning/info levels
+- [x] Create `internal/registry/validator_test.go` - 17 tests
+- [x] Create `internal/registry/manifest.go` - Builds and saves manifest.json
+- [x] Create `internal/registry/manifest_test.go` - 9 tests
+- [x] Test with sample registry files (all 48 tests passing)
+
+### Deliverables
+
+- [x] Scanner that finds and parses all .md files with regis3 frontmatter
+- [x] Skips .build, .git directories and files without regis3 block
+- [x] Validator with error/warning/info severity levels
+- [x] Validates required fields (type, name, desc)
+- [x] Validates type values against 12 valid types
+- [x] Validates dependencies exist
+- [x] Detects duplicate type:name combinations
+- [x] Manifest builder that outputs .build/manifest.json
+- [x] Manifest loader for reading existing manifests
 
 ---
 
