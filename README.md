@@ -2,6 +2,24 @@
 
 A registry manager for LLM assistant configurations. Manage and install skills, agents, commands, and other configurations for tools like Claude Code, Cursor, and more.
 
+## What is regis3?
+
+regis3 is a **package manager for Claude Code configurations**.
+
+You maintain a **registry** (a central folder of skills, agents, philosophies, etc.) and use regis3 to **install items from that registry into your current project**.
+
+```
+┌─────────────────┐       regis3 project add        ┌─────────────────┐
+│    Registry     │  ─────────────────────────────▶ │  Your Project   │
+│ ~/.regis3/      │                                 │  .claude/       │
+│   skills/       │                                 │    skills/      │
+│   agents/       │                                 │    agents/      │
+│   commands/     │                                 │    commands/    │
+└─────────────────┘                                 └─────────────────┘
+```
+
+**Target**: Claude Code (installs to `.claude/` directory)
+
 ## Features
 
 - **Registry Management**: Organize skills, subagents, commands, MCPs, scripts, docs, and more
@@ -39,14 +57,14 @@ brew install okto-digital/tap/regis3
 # Initialize regis3 (first-time setup)
 regis3 init
 
-# List available items
+# List available items in registry
 regis3 list
 
-# Install a skill
-regis3 add skill:git-conventions
+# Install a skill to current project
+regis3 project add skill:git-conventions
 
-# Show what's installed
-regis3 status
+# Show what's installed in current project
+regis3 project status
 
 # Update registry from git
 regis3 update
@@ -143,36 +161,36 @@ regis3 search "git"
 regis3 info skill:git-conventions
 ```
 
-### Installation
+### Project Operations
 
 ```bash
-# Install items
-regis3 add skill:git-conventions
+# Install items to current project
+regis3 project add skill:git-conventions
 
 # Install multiple items
-regis3 add skill:git-conventions skill:testing
+regis3 project add skill:git-conventions skill:testing
 
 # Install a stack (all dependencies)
-regis3 add stack:base
+regis3 project add stack:base
 
 # Preview installation (dry run)
-regis3 add skill:testing --dry-run
+regis3 project add skill:testing --dry-run
 
 # Force reinstall
-regis3 add skill:testing --force
+regis3 project add skill:testing --force
 ```
 
 ### Status & Updates
 
 ```bash
-# Show installed items
-regis3 status
+# Show installed items in current project
+regis3 project status
 
 # Update registry from git
 regis3 update
 
-# Remove installed items
-regis3 remove skill:git-conventions
+# Remove items from current project
+regis3 project remove skill:git-conventions
 ```
 
 ### Import External Files
