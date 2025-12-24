@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/okto-digital/regis3/internal/output"
 	"github.com/okto-digital/regis3/internal/registry"
 	"github.com/okto-digital/regis3/internal/resolver"
 )
@@ -128,4 +129,29 @@ func main() {
 		fmt.Printf("   All deps:     %v\n", info.AllDeps)
 		fmt.Printf("   Dependents:   %v\n", info.Dependents)
 	}
+
+	// Demo: Output Formatting (Phase 4)
+	fmt.Println()
+	fmt.Println("🎨 Output Formatting Demo:")
+	fmt.Println("─────────────────────────────────────────")
+
+	// Pretty output
+	pretty := output.New(output.FormatPretty, nil)
+	pretty.Success("Pretty format: Human-friendly with colors")
+	pretty.Info("Supports icons and styled text")
+	pretty.Warning("Warnings stand out visually")
+
+	// Table demo
+	fmt.Println()
+	pretty.Table(
+		[]string{"Type", "Name", "Description"},
+		[][]string{
+			{"skill", "git-conventions", "Git workflow conventions"},
+			{"skill", "testing", "Testing best practices"},
+			{"subagent", "architect", "Architecture planning"},
+		},
+	)
+
+	fmt.Println()
+	fmt.Println("Available formats: pretty (default), json, quiet")
 }
