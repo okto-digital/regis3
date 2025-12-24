@@ -90,6 +90,38 @@ sudo rpm -i regis3_1.0.0_linux_arm64.rpm
 </details>
 
 <details>
+<summary><b>Windows (amd64)</b></summary>
+
+1. Download [regis3_1.0.0_windows_amd64.zip](https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_windows_amd64.zip)
+2. Extract `regis3.exe`
+3. Move to a directory in your PATH (e.g., `C:\Program Files\regis3\`)
+4. Add to PATH if needed
+
+Or via PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_windows_amd64.zip" -OutFile regis3.zip
+Expand-Archive regis3.zip -DestinationPath .
+Move-Item regis3.exe C:\Windows\System32\
+```
+</details>
+
+<details>
+<summary><b>Windows (arm64)</b></summary>
+
+1. Download [regis3_1.0.0_windows_arm64.zip](https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_windows_arm64.zip)
+2. Extract `regis3.exe`
+3. Move to a directory in your PATH (e.g., `C:\Program Files\regis3\`)
+4. Add to PATH if needed
+
+Or via PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://github.com/okto-digital/regis3/releases/latest/download/regis3_1.0.0_windows_arm64.zip" -OutFile regis3.zip
+Expand-Archive regis3.zip -DestinationPath .
+Move-Item regis3.exe C:\Windows\System32\
+```
+</details>
+
+<details>
 <summary><b>Using Go</b></summary>
 
 ```bash
