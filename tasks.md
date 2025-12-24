@@ -76,15 +76,30 @@ This file tracks the implementation progress of the regis3 CLI tool.
 
 ## Phase 3: Dependency Resolution
 
-**Status:** Pending
+**Status:** Complete
+**Started:** 2025-12-24
+**Completed:** 2025-12-24
 
 ### Tasks
 
-- [ ] Create `internal/resolver/graph.go`
-- [ ] Create `internal/resolver/resolver.go`
-- [ ] Implement topological sort algorithm
-- [ ] Implement circular dependency detection
-- [ ] Add comprehensive tests
+- [x] Create `internal/resolver/graph.go` - Dependency graph with Kahn's algorithm
+- [x] Create `internal/resolver/graph_test.go` - 20 tests
+- [x] Create `internal/resolver/resolver.go` - High-level resolver interface
+- [x] Create `internal/resolver/resolver_test.go` - 24 tests
+- [x] Implement topological sort algorithm (Kahn's algorithm)
+- [x] Implement circular dependency detection
+- [x] Add comprehensive tests (44 total resolver tests)
+
+### Deliverables
+
+- [x] Graph builder from manifest items
+- [x] Cycle detection with clear error messages
+- [x] Topological sort returning items in install order
+- [x] ResolveOrder for partial dependency resolution
+- [x] AllDependencies for transitive dependency lookup
+- [x] Dependents tracking (reverse dependencies)
+- [x] Validate for missing dependency detection
+- [x] FilterByType for type-specific ordering
 
 ---
 
@@ -227,7 +242,7 @@ regis3 reindex               # Rebuild manifest after moving files
 |-------|--------|-------------|
 | 1 | ✅ Complete | Project Setup & Foundations |
 | 2 | ✅ Complete | Registry Scanner & Validator |
-| 3 | ⏳ Pending | Dependency Resolution |
+| 3 | ✅ Complete | Dependency Resolution |
 | 4 | ⏳ Pending | Output Formatting |
 | 5 | ⏳ Pending | Installation & Targets |
 | 6 | ⏳ Pending | CLI Commands (Core) |

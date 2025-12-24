@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/okto-digital/regis3/internal/registry"
+	"github.com/okto-digital/regis3/internal/resolver"
 )
 
 // Build-time variables (set via ldflags)
@@ -77,4 +78,54 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("✅ Build successful! Manifest saved to .build/manifest.json")
+
+	// Demo: Dependency Resolution (Phase 3)
+	fmt.Println()
+	fmt.Println("🔗 Dependency Resolution:")
+	fmt.Println("─────────────────────────────────────────")
+
+	r := resolver.NewResolver(result.Manifest)
+
+	// Check for cycles
+	if r.HasCycle() {
+		cycle, _ := r.FindCycle()
+		fmt.Printf("   ⚠️  Circular dependency detected: %v\n", cycle)
+	} else {
+		fmt.Println("   ✓ No circular dependencies")
+	}
+
+	// Validate dependencies
+	valResult := r.Validate()
+	if len(valResult.MissingDeps) > 0 {
+		fmt.Println("   ⚠️  Missing dependencies:")
+		for _, m := range valResult.MissingDeps {
+			fmt.Printf("      - %s\n", m)
+		}
+	} else {
+		fmt.Println("   ✓ All dependencies resolved")
+	}
+
+	// Show installation order for stack:base
+	fmt.Println()
+	fmt.Println("📋 Installation order for stack:base:")
+	order, err := r.GetInstallOrder([]string{"stack:base"})
+	if err != nil {
+		fmt.Printf("   Error: %v\n", err)
+	} else {
+		for i, id := range order {
+			fmt.Printf("   %d. %s\n", i+1, id)
+		}
+	}
+
+	// Show dependency info for a specific item
+	fmt.Println()
+	fmt.Println("🔍 Dependency info for skill:testing:")
+	info, err := r.GetDependencyInfo("skill:testing")
+	if err != nil {
+		fmt.Printf("   Error: %v\n", err)
+	} else {
+		fmt.Printf("   Direct deps:  %v\n", info.DirectDeps)
+		fmt.Printf("   All deps:     %v\n", info.AllDeps)
+		fmt.Printf("   Dependents:   %v\n", info.Dependents)
+	}
 }
