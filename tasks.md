@@ -474,6 +474,7 @@ Improve the `regis3 scan` command to be smarter about which files to import/stag
 | 12 | ⏳ Pending | AI Assist Mode |
 | 13 | ⏳ Pending | Scan Improvements |
 | 14 | ⏳ Pending | Documentation |
+| 15 | ⏳ Pending | Bubbletea TUI |
 
 **MVP Complete (Phases 1-8)** ✅
 
@@ -503,6 +504,34 @@ Create comprehensive documentation for regis3.
 - [ ] docs/item-types.md
 - [ ] docs/troubleshooting.md
 - [ ] Update README with links to docs
+
+---
+
+## Phase 15: Bubbletea TUI
+
+**Status:** Pending
+
+### Goal
+
+Full terminal UI rebuild using Bubbletea for a rich interactive experience.
+
+### Tasks
+
+- [ ] Replace huh with full Bubbletea TUI
+- [ ] Implement proper list component with sections/groups
+- [ ] Add fuzzy search across all item types
+- [ ] Visual item preview panel
+- [ ] Keyboard shortcuts (j/k navigation, / for search)
+- [ ] Status bar with context help
+- [ ] Color themes (light/dark mode)
+- [ ] Mouse support for selection
+
+### Deliverables
+
+- [ ] Full TUI for `regis3 project add`
+- [ ] TUI for `regis3 list` with interactive filtering
+- [ ] TUI for `regis3 info` with rich item preview
+- [ ] Consistent visual experience across commands
 
 ---
 

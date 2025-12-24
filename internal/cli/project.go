@@ -48,13 +48,37 @@ Examples:
   regis3 project add skill:git-conventions
   regis3 project add skill:git-conventions skill:clean-code
   regis3 project add stack:vue-fullstack`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("missing item reference\n\nUsage: regis3 project add <type:name> [type:name...]\n\nExample: regis3 project add skill:git-conventions")
-		}
-		return nil
-	},
+	Args: cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// If no args provided, show interactive picker
+		if len(args) == 0 {
+			manifest, err := registry.LoadManifestFromRegistry(getRegistryPath())
+			if err != nil {
+				_, buildErr := registry.BuildRegistry(getRegistryPath())
+				if buildErr != nil {
+					writer.Error(fmt.Sprintf("Failed to load registry: %s", err.Error()))
+					return err
+				}
+				manifest, err = registry.LoadManifestFromRegistry(getRegistryPath())
+				if err != nil {
+					writer.Error(fmt.Sprintf("Failed to load manifest: %s", err.Error()))
+					return err
+				}
+			}
+
+			selected, err := pickItemsToAdd(manifest)
+			if err != nil {
+				writer.Error(fmt.Sprintf("Selection cancelled: %s", err.Error()))
+				return err
+			}
+
+			if len(selected) == 0 {
+				writer.Info("No items selected")
+				return nil
+			}
+
+			args = selected
+		}
 		return runProjectAdd(args)
 	},
 }
