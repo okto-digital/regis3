@@ -1,12 +1,14 @@
 package registry
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/okto-digital/regis3/pkg/frontmatter"
+	"gopkg.in/yaml.v3"
 )
 
 // Scanner finds and parses registry items from markdown files.
@@ -130,7 +132,8 @@ func (s *Scanner) parseFile(path string) (*Item, error) {
 		if err == frontmatter.ErrNoFrontmatter {
 			return nil, ErrNoRegis3Block
 		}
-		return nil, fmt.Errorf("failed to parse frontmatter: %w", err)
+		// Provide helpful YAML error messages
+		return nil, formatYAMLError(err)
 	}
 
 	// Check if regis3 block exists
@@ -175,4 +178,47 @@ func HasRegis3Frontmatter(path string) (bool, error) {
 
 	// Check if regis3 block has required fields
 	return fm.Regis3.Type != "" && fm.Regis3.Name != "", nil
+}
+
+// formatYAMLError converts YAML errors into user-friendly messages.
+func formatYAMLError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	errStr := err.Error()
+
+	// Check for yaml.TypeError (type mismatch errors)
+	var typeErr *yaml.TypeError
+	if errors.As(err, &typeErr) {
+		return fmt.Errorf("YAML type error: %s", strings.Join(typeErr.Errors, "; "))
+	}
+
+	// Check for common YAML issues and provide helpful hints
+	switch {
+	case strings.Contains(errStr, "found character that cannot start any token"):
+		return fmt.Errorf("YAML syntax error: invalid character found. Check for tabs (use spaces) or special characters that need quotes")
+
+	case strings.Contains(errStr, "could not find expected ':'"):
+		return fmt.Errorf("YAML syntax error: missing colon. Ensure 'key: value' format")
+
+	case strings.Contains(errStr, "mapping values are not allowed"):
+		return fmt.Errorf("YAML indentation error: inconsistent indentation. Use exactly 2 spaces per level, no tabs")
+
+	case strings.Contains(errStr, "did not find expected key"):
+		return fmt.Errorf("YAML structure error: unexpected content. Check indentation and structure")
+
+	case strings.Contains(errStr, "found unexpected end of stream"):
+		return fmt.Errorf("YAML syntax error: unexpected end of content. Check for unclosed quotes or brackets")
+
+	case strings.Contains(errStr, "cannot unmarshal"):
+		return fmt.Errorf("YAML type error: wrong value type. %s", errStr)
+
+	default:
+		// Include line/column if available
+		if strings.Contains(errStr, "line") {
+			return fmt.Errorf("YAML error: %s", errStr)
+		}
+		return fmt.Errorf("YAML parsing error: %s. Tip: use 2-space indentation, quote special characters (@, :, #)", errStr)
+	}
 }

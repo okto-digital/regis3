@@ -122,7 +122,7 @@ type Item struct {
 	Content string `json:"-"`
 
 	// SourceDir is the directory containing the source file.
-	SourceDir string `json:"-"`
+	SourceDir string `json:"source_dir"`
 }
 
 // FullName returns the type:name identifier for the item.

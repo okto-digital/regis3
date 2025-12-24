@@ -419,6 +419,43 @@ LLM integration for intelligent suggestions and automation.
 
 ---
 
+## Phase 13: Scan Improvements
+
+**Status:** Pending
+
+### Goal
+
+Improve the `regis3 scan` command to be smarter about which files to import/stage.
+
+### Current Behavior
+
+- Scans all `.md` files in a directory
+- Files WITH valid `regis3:` frontmatter → imported directly
+- Files WITHOUT `regis3:` frontmatter → staged in `import/` folder
+- Problem: ALL markdown files get staged (README, docs, notes, etc.)
+
+### Tasks
+
+- [ ] Skip obvious non-item files (README.md, CHANGELOG.md, LICENSE.md, CONTRIBUTING.md)
+- [ ] Skip files in common non-item directories (node_modules, vendor, .git)
+- [ ] Bundle-aware scanning - parse `files:` field to resolve referenced assets
+- [ ] Include referenced files (docs, scripts, images) as part of parent item
+- [ ] Smart classification using directory hints (skills/, agents/, etc.)
+- [ ] Content analysis for type suggestions (code blocks, patterns)
+- [ ] Confidence scoring for type suggestions
+- [ ] Interactive mode (`--interactive`) to approve/skip each file
+- [ ] Non-markdown support for script (.sh) and mcp (.json) types
+- [ ] Handle images/assets referenced by `files:` field
+
+### Deliverables
+
+- [ ] Smarter file filtering during scan
+- [ ] Bundle resolution for multi-file items
+- [ ] Improved classification heuristics
+- [ ] Interactive approval mode
+
+---
+
 ## Progress Summary
 
 | Phase | Status | Description |
@@ -435,8 +472,37 @@ LLM integration for intelligent suggestions and automation.
 | 10 | ⏳ Pending | Stack Shortcuts |
 | 11 | ⏳ Pending | Hook System |
 | 12 | ⏳ Pending | AI Assist Mode |
+| 13 | ⏳ Pending | Scan Improvements |
+| 14 | ⏳ Pending | Documentation |
 
 **MVP Complete (Phases 1-8)** ✅
+
+---
+
+## Phase 14: Documentation
+
+**Status:** Pending
+
+### Goal
+
+Create comprehensive documentation for regis3.
+
+### Tasks
+
+- [ ] YAML frontmatter format guide (required/optional fields, examples)
+- [ ] Claude Code integration guide (skill, agent, command structure)
+- [ ] Item type reference (all 12 types with examples)
+- [ ] Best practices for organizing registries
+- [ ] Troubleshooting guide (common YAML errors, indentation issues)
+- [ ] Migration guide (importing existing skills)
+- [ ] API reference for `--format json` output
+
+### Deliverables
+
+- [ ] docs/yaml-format.md
+- [ ] docs/item-types.md
+- [ ] docs/troubleshooting.md
+- [ ] Update README with links to docs
 
 ---
 
