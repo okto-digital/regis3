@@ -349,3 +349,29 @@ type PendingItem struct {
 	SuggestedName string `json:"suggested_name"`
 	Confidence    int    `json:"confidence"`
 }
+
+// UpdateData is the response data for update commands.
+type UpdateData struct {
+	Updated   bool   `json:"updated"`
+	ItemCount int    `json:"item_count"`
+	GitOutput string `json:"git_output,omitempty"`
+}
+
+// OrphansData is the response data for orphans commands.
+type OrphansData struct {
+	Orphans []OrphanFile `json:"orphans"`
+	Count   int          `json:"count"`
+}
+
+// OrphanFile represents a file not referenced in the manifest.
+type OrphanFile struct {
+	Path   string `json:"path"`
+	Size   int64  `json:"size"`
+	Reason string `json:"reason"`
+}
+
+// ConfigData is the response data for config commands.
+type ConfigData struct {
+	Path     string            `json:"path"`
+	Settings map[string]string `json:"settings"`
+}

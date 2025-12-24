@@ -1,0 +1,96 @@
+version: 2
+
+project_name: regis3
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - id: regis3
+    main: ./cmd/regis3
+    binary: regis3
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/okto-digital/regis3/internal/cli.version={{.Version}}
+      - -X github.com/okto-digital/regis3/internal/cli.commit={{.Commit}}
+      - -X github.com/okto-digital/regis3/internal/cli.date={{.Date}}
+      - -X github.com/okto-digital/regis3/internal/cli.builtBy=goreleaser
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - Merge pull request
+      - Merge branch
+
+release:
+  github:
+    owner: okto-digital
+    name: regis3
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+
+brews:
+  - name: regis3
+    repository:
+      owner: okto-digital
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    directory: Formula
+    homepage: https://github.com/okto-digital/regis3
+    description: Registry manager for LLM assistant configurations
+    license: MIT
+    test: |
+      system "#{bin}/regis3", "version"
+    install: |
+      bin.install "regis3"
+
+nfpms:
+  - id: packages
+    package_name: regis3
+    vendor: Okto Digital
+    homepage: https://github.com/okto-digital/regis3
+    maintainer: Okto Digital <support@okto.digital>
+    description: Registry manager for LLM assistant configurations
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin

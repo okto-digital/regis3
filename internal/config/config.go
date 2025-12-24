@@ -110,6 +110,16 @@ func DefaultRegistryPath() string {
 	return paths.RegistryDir
 }
 
+// DefaultConfigPath returns the default config file path.
+func DefaultConfigPath() string {
+	paths, err := NewPaths()
+	if err != nil {
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, ".regis3", "config.yaml")
+	}
+	return paths.ConfigFile
+}
+
 // Save saves the configuration to a file.
 func Save(cfg *Config, path string) error {
 	v := viper.New()

@@ -128,6 +128,18 @@ func (w *PrettyWriter) writeData(data interface{}) {
 		w.writeImportData(d)
 	case ImportData:
 		w.writeImportData(&d)
+	case *UpdateData:
+		w.writeUpdateData(d)
+	case UpdateData:
+		w.writeUpdateData(&d)
+	case *OrphansData:
+		w.writeOrphansData(d)
+	case OrphansData:
+		w.writeOrphansData(&d)
+	case *ConfigData:
+		w.writeConfigData(d)
+	case ConfigData:
+		w.writeConfigData(&d)
 	case []string:
 		w.List(d)
 	case map[string]interface{}:
@@ -323,6 +335,41 @@ func (w *PrettyWriter) writeImportData(data *ImportData) {
 		for _, e := range data.Errors {
 			w.writeLine(w.out, "  %s %s", iconBullet, styleError.Render(e))
 		}
+	}
+}
+
+// writeUpdateData writes update response data.
+func (w *PrettyWriter) writeUpdateData(data *UpdateData) {
+	if data.Updated {
+		w.writeLine(w.out, "%s Registry updated", iconSuccess)
+	} else {
+		w.writeLine(w.out, "%s Already up to date", iconInfo)
+	}
+	w.writeLine(w.out, "   Items: %d", data.ItemCount)
+}
+
+// writeOrphansData writes orphans response data.
+func (w *PrettyWriter) writeOrphansData(data *OrphansData) {
+	if len(data.Orphans) == 0 {
+		w.writeLine(w.out, "%s No orphaned files found", iconSuccess)
+		return
+	}
+
+	w.writeLine(w.out, "%s Found %d orphaned files:", iconWarning, data.Count)
+	for _, orphan := range data.Orphans {
+		w.writeLine(w.out, "  %s %s", iconBullet, styleMuted.Render(orphan.Path))
+		if orphan.Reason != "" {
+			w.writeLine(w.out, "      %s", styleMuted.Render(orphan.Reason))
+		}
+	}
+}
+
+// writeConfigData writes config response data.
+func (w *PrettyWriter) writeConfigData(data *ConfigData) {
+	w.writeLine(w.out, "Config: %s", styleMuted.Render(data.Path))
+	w.writeLine(w.out, "")
+	for key, value := range data.Settings {
+		w.writeLine(w.out, "  %s: %s", styleBold.Render(key), value)
 	}
 }
 
