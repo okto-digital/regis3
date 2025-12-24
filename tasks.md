@@ -311,6 +311,114 @@ regis3 reindex               # Rebuild manifest after moving files
 
 ---
 
+## Phase 9: Multi-Target Support
+
+**Status:** Pending
+
+### Goal
+
+Support multiple installation targets beyond Claude Code (Cursor, GPT, etc.).
+
+### Tasks
+
+- [ ] Create `targets/cursor.yaml` - Cursor target definition
+- [ ] Create `targets/gpt.yaml` - GPT/ChatGPT target definition
+- [ ] Implement single-file output mode (concatenate all items)
+- [ ] Add token limit configuration per target
+- [ ] Implement content trimming for token limits
+- [ ] Add `--target` flag to project commands
+- [ ] Update installer to handle different target structures
+
+### Deliverables
+
+- [ ] Multiple target YAML configurations
+- [ ] Target-specific path mappings
+- [ ] Single-file vs multi-file installation modes
+- [ ] Token counting and trimming
+- [ ] Target selection in CLI
+
+---
+
+## Phase 10: Stack Shortcuts
+
+**Status:** Pending
+
+### Goal
+
+Enable shortcut commands for common stacks (e.g., `regis3 vue`, `regis3 api`).
+
+### Tasks
+
+- [ ] Implement stack shortcut resolution
+- [ ] Create `regis3 <stack-name>` as alias for `regis3 project add stack:<stack-name>`
+- [ ] Add stack listing with `regis3 stacks`
+- [ ] Create sample stacks (vue-fullstack, api-backend, testing, etc.)
+- [ ] Support stack composition (stacks depending on other stacks)
+
+### Deliverables
+
+- [ ] Stack shortcut commands
+- [ ] Stack listing command
+- [ ] Sample stack definitions
+- [ ] Nested stack resolution
+
+---
+
+## Phase 11: Hook System
+
+**Status:** Pending
+
+### Goal
+
+Execute custom scripts at various lifecycle points.
+
+### Tasks
+
+- [ ] Define hook trigger points (pre-install, post-install, pre-remove, post-remove, pre-build, post-build)
+- [ ] Create hook executor with environment variable injection
+- [ ] Add hook configuration in registry items
+- [ ] Implement hook timeout and error handling
+- [ ] Add `--skip-hooks` flag to bypass hook execution
+- [ ] Create sample hooks (format code, run tests, notify)
+
+### Deliverables
+
+- [ ] Hook trigger system
+- [ ] Hook executor with proper sandboxing
+- [ ] Environment variable injection (item name, type, path, etc.)
+- [ ] Timeout and error handling
+- [ ] Sample hook implementations
+
+---
+
+## Phase 12: AI Assist Mode
+
+**Status:** Pending
+
+### Goal
+
+LLM integration for intelligent suggestions and automation.
+
+### Tasks
+
+- [ ] Create `regis3 assist analyze` - Analyze project and suggest items
+- [ ] Create `regis3 assist scan` - Smart scanning with classification
+- [ ] Create `regis3 assist repair` - Fix malformed frontmatter
+- [ ] Create `regis3 assist generate` - Generate new items from description
+- [ ] Add LLM provider configuration (OpenAI, Anthropic, local)
+- [ ] Implement context building for LLM prompts
+- [ ] Add `--ai` flag for AI-enhanced operations
+
+### Deliverables
+
+- [ ] AI analysis command
+- [ ] Smart classification during scan
+- [ ] Frontmatter repair/generation
+- [ ] New item generation from natural language
+- [ ] Multi-provider LLM support
+
+---
+
 ## Progress Summary
 
 | Phase | Status | Description |
@@ -323,8 +431,12 @@ regis3 reindex               # Rebuild manifest after moving files
 | 6 | ✅ Complete | CLI Commands (Core) |
 | 7 | ✅ Complete | Polish & Distribution |
 | 8 | ✅ Complete | Import & Scan External Files |
+| 9 | ⏳ Pending | Multi-Target Support |
+| 10 | ⏳ Pending | Stack Shortcuts |
+| 11 | ⏳ Pending | Hook System |
+| 12 | ⏳ Pending | AI Assist Mode |
 
-**All phases complete!** 🎉
+**MVP Complete (Phases 1-8)** ✅
 
 ---
 
