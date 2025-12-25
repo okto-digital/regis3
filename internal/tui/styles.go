@@ -4,13 +4,16 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// Colors
+// Colors - Using a refined color palette
 var (
 	primaryColor   = lipgloss.Color("#7C3AED") // Purple
+	accentColor    = lipgloss.Color("#A78BFA") // Light purple
 	secondaryColor = lipgloss.Color("#10B981") // Green
 	mutedColor     = lipgloss.Color("#6B7280") // Gray
+	dimColor       = lipgloss.Color("#4B5563") // Darker gray
 	errorColor     = lipgloss.Color("#EF4444") // Red
 	warningColor   = lipgloss.Color("#F59E0B") // Yellow
+	bgColor        = lipgloss.Color("#1F2937") // Dark background
 )
 
 // Styles
@@ -19,7 +22,41 @@ var (
 	appStyle = lipgloss.NewStyle().
 			Padding(1, 2)
 
-	// Header
+	// Logo style for "regis3"
+	logoStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(primaryColor)
+
+	// Logo box - the main header container
+	logoBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(primaryColor).
+			Padding(0, 2).
+			MarginBottom(1)
+
+	// Version/info text in header
+	versionStyle = lipgloss.NewStyle().
+			Foreground(accentColor)
+
+	authorStyle = lipgloss.NewStyle().
+			Foreground(mutedColor).
+			Italic(true)
+
+	// Info box for paths
+	infoBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(dimColor).
+			Padding(0, 2).
+			MarginBottom(1)
+
+	infoLabelStyle = lipgloss.NewStyle().
+			Foreground(mutedColor).
+			Width(12)
+
+	infoValueStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#E5E7EB"))
+
+	// Header (for other views)
 	headerStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(primaryColor).
@@ -32,12 +69,15 @@ var (
 	// Cards for dashboard
 	cardStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(mutedColor).
+			BorderForeground(dimColor).
 			Padding(1, 2).
-			Width(20)
+			Width(18)
 
-	cardActiveStyle = cardStyle.Copy().
-			BorderForeground(primaryColor)
+	cardActiveStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(primaryColor).
+			Padding(1, 2).
+			Width(18)
 
 	cardTitleStyle = lipgloss.NewStyle().
 			Bold(true).
@@ -52,6 +92,11 @@ var (
 
 	selectedItemStyle = lipgloss.NewStyle().
 				PaddingLeft(2).
+				Foreground(primaryColor).
+				Bold(true)
+
+	// Selected text style (no padding, just color)
+	selectedTextStyle = lipgloss.NewStyle().
 				Foreground(primaryColor).
 				Bold(true)
 
@@ -95,4 +140,8 @@ var (
 	// Subtle text
 	subtleStyle = lipgloss.NewStyle().
 			Foreground(mutedColor)
+
+	// Spinner style
+	spinnerStyle = lipgloss.NewStyle().
+			Foreground(primaryColor)
 )

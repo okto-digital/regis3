@@ -279,8 +279,12 @@ func runProjectRemove(refs []string) error {
 		}
 	}
 
+	// Load manifest for proper merged item removal
+	registryPath := getRegistryPath()
+	manifest, _ := registry.LoadManifestFromRegistry(registryPath)
+
 	// Create installer
-	inst, err := installer.NewInstaller(".", getRegistryPath(), target)
+	inst, err := installer.NewInstaller(".", registryPath, target)
 	if err != nil {
 		writer.Error(fmt.Sprintf("Installer error: %s", err.Error()))
 		return err
@@ -288,7 +292,7 @@ func runProjectRemove(refs []string) error {
 	inst.DryRun = projectRemoveDryRun
 
 	// Uninstall items
-	result, err := inst.Uninstall(refs)
+	result, err := inst.Uninstall(refs, manifest)
 	if err != nil {
 		writer.Error(fmt.Sprintf("Uninstall failed: %s", err.Error()))
 		return err
@@ -329,7 +333,7 @@ func runProjectRemove(refs []string) error {
 			resp.WithWarning("%d items not installed", len(result.NotFound))
 		}
 		if len(result.Skipped) > 0 {
-			resp.WithWarning("Skipped %d merged items (edit %s manually)", len(result.Skipped), target.MergeFile)
+			resp.WithWarning("Skipped %d items (no manifest available)", len(result.Skipped))
 		}
 	}
 

@@ -1,107 +1,65 @@
 package tui
 
 import (
-	"fmt"
-	"io"
-	"strings"
-
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/okto-digital/regis3/internal/registry"
 )
 
 // registryItem wraps a registry.Item for the list component
 type registryItem struct {
-	item     *registry.Item
-	selected bool
+	item      *registry.Item
+	selected  bool
+	installed bool
 }
 
 func (i registryItem) Title() string {
-	return i.item.FullName()
+	prefix := ""
+	if i.installed {
+		prefix = "✓ "
+	}
+	return prefix + i.item.FullName()
+}
+
+func (i registryItem) IsSelected() bool {
+	return i.selected
 }
 
 func (i registryItem) Description() string {
-	return i.item.Desc
+	prefix := ""
+	if i.selected {
+		prefix = "● "
+	}
+	return prefix + i.item.Desc
 }
 
 func (i registryItem) FilterValue() string {
-	// Allow filtering by name, type, description, and tags
-	parts := []string{i.item.Name, i.item.Type, i.item.Desc}
-	parts = append(parts, i.item.Tags...)
-	return strings.Join(parts, " ")
-}
-
-// itemDelegate handles rendering of list items
-type itemDelegate struct {
-	selected map[string]bool
-}
-
-func (d itemDelegate) Height() int  { return 1 }
-func (d itemDelegate) Spacing() int { return 0 }
-
-func (d itemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
-	return nil
-}
-
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(registryItem)
-	if !ok {
-		return
-	}
-
-	ref := i.item.FullName()
-	isSelected := d.selected[ref]
-	isCursor := index == m.Index()
-
-	// Selection marker
-	selectMark := "  "
-	if isSelected {
-		selectMark = "● "
-	}
-
-	// Cursor marker
-	cursor := "  "
-	if isCursor {
-		cursor = "> "
-	}
-
-	// Build the line
-	name := ref
-	if len(name) > 28 {
-		name = name[:25] + "..."
-	}
-
-	desc := i.item.Desc
-	if len(desc) > 40 {
-		desc = desc[:37] + "..."
-	}
-
-	line := fmt.Sprintf("%s%s%-28s  %s", cursor, selectMark, name, desc)
-
-	// Style based on cursor position
-	style := itemStyle
-	if isCursor {
-		style = selectedItemStyle
-	}
-
-	fmt.Fprint(w, style.Render(line))
+	// Use full name for filtering - this matches what Title() displays
+	// so the fuzzy match highlighting works correctly
+	return i.item.FullName()
 }
 
 // newRegistryList creates a new list.Model for registry items
-func newRegistryList(items []*registry.Item, selected map[string]bool, width, height int) list.Model {
+func newRegistryList(items []*registry.Item, selected map[string]bool, installed map[string]bool, width, height int) list.Model {
 	// Convert to list items
 	listItems := make([]list.Item, len(items))
 	for i, item := range items {
+		ref := item.FullName()
 		listItems[i] = registryItem{
-			item:     item,
-			selected: selected[item.FullName()],
+			item:      item,
+			selected:  selected[ref],
+			installed: installed[ref],
 		}
 	}
 
-	// Create delegate with selection tracking
-	delegate := itemDelegate{selected: selected}
+	// Use the default delegate with custom styles
+	delegate := list.NewDefaultDelegate()
+	delegate.Styles.SelectedTitle = delegate.Styles.SelectedTitle.
+		Foreground(primaryColor).
+		BorderLeftForeground(primaryColor)
+	delegate.Styles.SelectedDesc = delegate.Styles.SelectedDesc.
+		Foreground(lipgloss.Color("#666666"))
 
 	// Create the list
 	l := list.New(listItems, delegate, width, height)
@@ -136,17 +94,16 @@ func newRegistryList(items []*registry.Item, selected map[string]bool, width, he
 	return l
 }
 
-// updateRegistryListItems updates the list with new items
-func updateRegistryListItems(l *list.Model, items []*registry.Item, selected map[string]bool) {
+// updateRegistryListItems updates the list with new items and selection state
+func updateRegistryListItems(l *list.Model, items []*registry.Item, selected map[string]bool, installed map[string]bool) {
 	listItems := make([]list.Item, len(items))
 	for i, item := range items {
+		ref := item.FullName()
 		listItems[i] = registryItem{
-			item:     item,
-			selected: selected[item.FullName()],
+			item:      item,
+			selected:  selected[ref],
+			installed: installed[ref],
 		}
 	}
 	l.SetItems(listItems)
-
-	// Update delegate with new selection state
-	l.SetDelegate(itemDelegate{selected: selected})
 }

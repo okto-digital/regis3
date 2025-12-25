@@ -544,13 +544,105 @@ func TestInstaller_Uninstall(t *testing.T) {
 	assert.FileExists(t, skillPath)
 
 	// Now uninstall
-	result, err := installer.Uninstall([]string{"skill:test"})
+	result, err := installer.Uninstall([]string{"skill:test"}, manifest)
 	require.NoError(t, err)
 
 	assert.Len(t, result.Uninstalled, 1)
 	assert.Contains(t, result.Uninstalled, "skill:test")
 	assert.NoFileExists(t, skillPath)
 	assert.False(t, installer.Tracker.IsInstalled("skill:test"))
+}
+
+func TestInstaller_UninstallMerged(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "regis3-test-*")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	registryDir := filepath.Join(tmpDir, "registry")
+	projectDir := filepath.Join(tmpDir, "project")
+	require.NoError(t, os.MkdirAll(registryDir, 0755))
+	require.NoError(t, os.MkdirAll(projectDir, 0755))
+
+	manifest := registry.NewManifest(registryDir)
+
+	// Add two philosophy items (these get merged into CLAUDE.md)
+	manifest.AddItem(&registry.Item{
+		Regis3Meta: registry.Regis3Meta{
+			Type: "philosophy",
+			Name: "clean-code",
+			Desc: "Clean code principles",
+		},
+		Content: "# Clean Code\n\nWrite clean code.",
+		Source:  "philosophies/clean-code.md",
+	})
+	manifest.AddItem(&registry.Item{
+		Regis3Meta: registry.Regis3Meta{
+			Type: "philosophy",
+			Name: "testing",
+			Desc: "Testing principles",
+		},
+		Content: "# Testing\n\nAlways test.",
+		Source:  "philosophies/testing.md",
+	})
+
+	target := DefaultClaudeTarget()
+	inst, err := NewInstaller(projectDir, registryDir, target)
+	require.NoError(t, err)
+
+	// Install both items
+	_, err = inst.Install(manifest, []string{"philosophy:clean-code", "philosophy:testing"})
+	require.NoError(t, err)
+
+	// Verify CLAUDE.md exists and contains both items
+	claudePath := filepath.Join(projectDir, "CLAUDE.md")
+	assert.FileExists(t, claudePath)
+
+	content, err := os.ReadFile(claudePath)
+	require.NoError(t, err)
+	assert.Contains(t, string(content), "Clean Code")
+	assert.Contains(t, string(content), "Testing")
+	assert.Contains(t, string(content), "<!-- regis3:start -->")
+	assert.Contains(t, string(content), "<!-- regis3:end -->")
+
+	// Verify both are tracked as installed
+	assert.True(t, inst.Tracker.IsInstalled("philosophy:clean-code"))
+	assert.True(t, inst.Tracker.IsInstalled("philosophy:testing"))
+
+	// Reload installer to simulate fresh session
+	inst, err = NewInstaller(projectDir, registryDir, target)
+	require.NoError(t, err)
+
+	// Uninstall one of the merged items
+	result, err := inst.Uninstall([]string{"philosophy:clean-code"}, manifest)
+	require.NoError(t, err)
+
+	// Should be marked as uninstalled
+	assert.Len(t, result.Uninstalled, 1)
+	assert.Contains(t, result.Uninstalled, "philosophy:clean-code")
+	assert.Empty(t, result.Skipped)
+
+	// Tracker should no longer have clean-code
+	assert.False(t, inst.Tracker.IsInstalled("philosophy:clean-code"))
+	assert.True(t, inst.Tracker.IsInstalled("philosophy:testing"))
+
+	// CLAUDE.md should still exist with only testing
+	content, err = os.ReadFile(claudePath)
+	require.NoError(t, err)
+	assert.NotContains(t, string(content), "Clean Code")
+	assert.Contains(t, string(content), "Testing")
+
+	// Now uninstall the last item
+	inst, err = NewInstaller(projectDir, registryDir, target)
+	require.NoError(t, err)
+
+	result, err = inst.Uninstall([]string{"philosophy:testing"}, manifest)
+	require.NoError(t, err)
+
+	assert.Len(t, result.Uninstalled, 1)
+	assert.False(t, inst.Tracker.IsInstalled("philosophy:testing"))
+
+	// CLAUDE.md should be deleted when no merged items remain
+	assert.NoFileExists(t, claudePath)
 }
 
 func TestLoadTarget(t *testing.T) {
