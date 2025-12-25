@@ -6,6 +6,7 @@ import (
 
 	"github.com/okto-digital/regis3/internal/config"
 	"github.com/okto-digital/regis3/internal/output"
+	"github.com/okto-digital/regis3/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +31,21 @@ commands, and other configurations for LLM coding assistants.
 
 It supports multiple targets (Claude Code, Cursor, etc.) and provides
 dependency resolution, validation, and organized installation.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// If JSON format requested, show help instead of TUI
+		if formatFlag == "json" {
+			return cmd.Help()
+		}
+
+		// Get project path (current working directory)
+		projectPath, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get working directory: %w", err)
+		}
+
+		// Launch TUI
+		return tui.Run(cfg, getRegistryPath(), projectPath)
+	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// Skip setup for init command when no config exists
 		if cmd.Name() == "init" {
