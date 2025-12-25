@@ -2,6 +2,7 @@ package tui
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/okto-digital/regis3/internal/config"
 	"github.com/okto-digital/regis3/internal/registry"
@@ -21,7 +22,7 @@ const (
 // Model is the main application state
 type Model struct {
 	// Current view
-	currentView View
+	currentView  View
 	previousView View
 
 	// Data
@@ -38,8 +39,11 @@ type Model struct {
 	// Selected items (for multi-select)
 	selected map[string]bool
 
-	// Current cursor position in lists
+	// Current cursor position (for dashboard cards)
 	cursor int
+
+	// Registry list component
+	registryList list.Model
 
 	// Detail view item
 	detailItem *registry.Item
@@ -198,6 +202,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.ready = true
+		// Update list size
+		m.registryList.SetSize(msg.Width-4, msg.Height-8)
 		return m, nil
 
 	case manifestLoadedMsg:
@@ -206,10 +212,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.isError = true
 		} else {
 			m.manifest = msg.manifest
-			m.statusMsg = ""
+			m.statusMsg = "Registry loaded"
 			m.isError = false
+			// Initialize registry list with items
+			items := m.getRegistryItems()
+			m.registryList = newRegistryList(items, m.selected, m.width-4, m.height-8)
 		}
 		return m, nil
+
+	case buildCompleteMsg:
+		if msg.err != nil {
+			m.statusMsg = "Build failed: " + msg.err.Error()
+			m.isError = true
+			return m, nil
+		}
+		m.statusMsg = "Build complete!"
+		m.isError = false
+		// Reload manifest after build
+		return m, loadManifest(m.registryPath)
 	}
 
 	return m, nil
@@ -238,6 +258,8 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case key.Matches(msg, m.keys.Build):
+		m.statusMsg = "Building registry..."
+		m.isError = false
 		return m, m.buildRegistry()
 
 	case key.Matches(msg, m.keys.Back):
@@ -276,35 +298,36 @@ func (m Model) updateDashboard(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) updateRegistry(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	items := m.getRegistryItems()
-
+	// Handle our custom keys first
 	switch {
-	case key.Matches(msg, m.keys.Up):
-		if m.cursor > 0 {
-			m.cursor--
-		}
-	case key.Matches(msg, m.keys.Down):
-		if m.cursor < len(items)-1 {
-			m.cursor++
-		}
 	case key.Matches(msg, m.keys.Select):
-		if m.cursor < len(items) {
-			item := items[m.cursor]
-			ref := item.FullName()
+		// Toggle selection on current item
+		if item, ok := m.registryList.SelectedItem().(registryItem); ok {
+			ref := item.item.FullName()
 			if m.selected[ref] {
 				delete(m.selected, ref)
 			} else {
 				m.selected[ref] = true
 			}
+			// Update delegate to reflect selection change
+			m.registryList.SetDelegate(itemDelegate{selected: m.selected})
 		}
+		return m, nil
+
 	case key.Matches(msg, m.keys.Enter):
-		if m.cursor < len(items) {
-			m.detailItem = items[m.cursor]
+		// View item details
+		if item, ok := m.registryList.SelectedItem().(registryItem); ok {
+			m.detailItem = item.item
 			m.previousView = ViewRegistry
 			m.currentView = ViewDetail
 		}
+		return m, nil
 	}
-	return m, nil
+
+	// Delegate all other keys to the list component
+	var cmd tea.Cmd
+	m.registryList, cmd = m.registryList.Update(msg)
+	return m, cmd
 }
 
 func (m Model) updateProject(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
