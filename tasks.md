@@ -513,25 +513,105 @@ Create comprehensive documentation for regis3.
 
 ### Goal
 
-Full terminal UI rebuild using Bubbletea for a rich interactive experience.
+Full TUI-first experience for regis3. Running `regis3` launches persistent TUI.
+CLI mode with `--json` preserved for LLM agents.
 
-### Tasks
+### Architecture
 
-- [ ] Replace huh with full Bubbletea TUI
-- [ ] Implement proper list component with sections/groups
-- [ ] Add fuzzy search across all item types
-- [ ] Visual item preview panel
-- [ ] Keyboard shortcuts (j/k navigation, / for search)
-- [ ] Status bar with context help
-- [ ] Color themes (light/dark mode)
-- [ ] Mouse support for selection
+```
+regis3              → Launches TUI (human mode)
+regis3 --json ...   → CLI mode for agents (returns JSON)
+regis3 <command>    → Traditional CLI (backwards compatible)
+```
 
-### Deliverables
+### TUI Views
 
-- [ ] Full TUI for `regis3 project add`
-- [ ] TUI for `regis3 list` with interactive filtering
-- [ ] TUI for `regis3 info` with rich item preview
-- [ ] Consistent visual experience across commands
+**1. Dashboard (Home)**
+- Stats cards: Registry items, Project installed, Settings
+- Quick navigation with number keys (1/2/3)
+- Build shortcut (b)
+
+**2. Registry View**
+- Grouped list by type (Skills, Agents, Commands, etc.)
+- Search/filter with `/`
+- Multi-select with `space`
+- Add to project with `a`
+
+**3. Project View**
+- Installed items with status (✓ up to date, ⚠ update available)
+- Remove (r), Update (u), Update all (U)
+
+**4. Settings View**
+- Registry path, default target, output format
+- Edit capability
+
+**5. Item Detail View**
+- Full item info: type, tags, status, description, deps, files
+- Add to project action
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `1/2/3` | Switch to Registry/Project/Settings |
+| `j/k` or `↑/↓` | Navigate list |
+| `/` | Search/filter |
+| `space` | Toggle selection |
+| `enter` | View details / Confirm |
+| `a` | Add to project |
+| `r` | Remove from project |
+| `u` | Update item |
+| `b` | Build registry |
+| `?` | Help |
+| `q` | Quit / Back |
+
+### File Structure
+
+```
+internal/tui/
+├── app.go           # Main Bubbletea app
+├── model.go         # App state model
+├── views/
+│   ├── dashboard.go
+│   ├── registry.go
+│   ├── project.go
+│   ├── settings.go
+│   └── detail.go
+├── components/
+│   ├── list.go
+│   ├── statusbar.go
+│   └── header.go
+└── styles.go
+```
+
+### Implementation Sub-phases
+
+**Phase 15a: Core TUI Framework**
+- [ ] Create `internal/tui/` package structure
+- [ ] Implement main app model and view switching
+- [ ] Dashboard view with stats
+- [ ] Basic navigation (1/2/3 keys)
+
+**Phase 15b: Registry View**
+- [ ] Grouped list with sections
+- [ ] Search/filter functionality
+- [ ] Item selection (space to toggle)
+- [ ] Add to project action
+
+**Phase 15c: Project View**
+- [ ] Show installed items
+- [ ] Update status indicators
+- [ ] Remove/Update actions
+
+**Phase 15d: Detail & Settings**
+- [ ] Item detail view
+- [ ] Settings view with edit capability
+
+**Phase 15e: Polish**
+- [ ] Help overlay
+- [ ] Keyboard shortcut hints
+- [ ] Color themes
+- [ ] Error handling/notifications
 
 ---
 

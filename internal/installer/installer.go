@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/okto-digital/regis3/internal/registry"
 	"github.com/okto-digital/regis3/internal/resolver"
@@ -294,8 +295,12 @@ func (i *Installer) writeMergeFile(mergeContent *MergeContent) error {
 }
 
 // Uninstall removes installed items.
-func (i *Installer) Uninstall(itemIDs []string) (*UninstallResult, error) {
+// If manifest is provided, merged items can be properly removed from CLAUDE.md.
+func (i *Installer) Uninstall(itemIDs []string, manifest *registry.Manifest) (*UninstallResult, error) {
 	result := &UninstallResult{}
+
+	// Track which merged items are being removed
+	mergedToRemove := make(map[string]bool)
 
 	for _, id := range itemIDs {
 		installed := i.Tracker.GetInstalled(id)
@@ -304,9 +309,18 @@ func (i *Installer) Uninstall(itemIDs []string) (*UninstallResult, error) {
 			continue
 		}
 
-		// Skip merge types for now (would need to regenerate CLAUDE.md)
+		// Handle merged items
 		if installed.Merged {
-			result.Skipped = append(result.Skipped, id)
+			if manifest == nil {
+				// Can't properly remove merged items without manifest
+				result.Skipped = append(result.Skipped, id)
+				continue
+			}
+			mergedToRemove[id] = true
+			if !i.DryRun {
+				i.Tracker.MarkUninstalled(id)
+			}
+			result.Uninstalled = append(result.Uninstalled, id)
 			continue
 		}
 
@@ -336,6 +350,17 @@ func (i *Installer) Uninstall(itemIDs []string) (*UninstallResult, error) {
 		result.Uninstalled = append(result.Uninstalled, id)
 	}
 
+	// Regenerate CLAUDE.md if merged items were removed
+	if len(mergedToRemove) > 0 && !i.DryRun {
+		if err := i.regenerateMergeFile(manifest, mergedToRemove); err != nil {
+			result.Errors = append(result.Errors, InstallError{
+				ItemID:  "CLAUDE.md",
+				Message: err.Error(),
+				Err:     err,
+			})
+		}
+	}
+
 	// Save tracker
 	if !i.DryRun {
 		if err := i.Tracker.Save(); err != nil {
@@ -344,6 +369,82 @@ func (i *Installer) Uninstall(itemIDs []string) (*UninstallResult, error) {
 	}
 
 	return result, nil
+}
+
+// regenerateMergeFile regenerates CLAUDE.md with remaining merged items.
+func (i *Installer) regenerateMergeFile(manifest *registry.Manifest, removedItems map[string]bool) error {
+	mergeContent := NewMergeContent()
+
+	// Find all remaining merged items and add them to merge content
+	for id, installed := range i.Tracker.Data.Items {
+		if !installed.Merged {
+			continue
+		}
+		if removedItems[id] {
+			continue
+		}
+
+		// Get the item from manifest
+		item, ok := manifest.Items[id]
+		if !ok {
+			continue
+		}
+
+		// Transform and add to merge content
+		content, err := i.Transformer.Transform(item)
+		if err != nil {
+			continue
+		}
+		mergeContent.Add(item, content)
+	}
+
+	mergeFilePath := filepath.Join(i.ProjectDir, i.Target.MergeFile)
+
+	// If no more merged items, remove managed section or delete file
+	if !mergeContent.HasContent() {
+		// Read existing file
+		data, err := os.ReadFile(mergeFilePath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return nil
+			}
+			return err
+		}
+
+		existing := string(data)
+		startMarker := "<!-- regis3:start -->"
+		endMarker := "<!-- regis3:end -->"
+
+		startIdx := strings.Index(existing, startMarker)
+		endIdx := strings.Index(existing, endMarker)
+
+		if startIdx != -1 && endIdx != -1 {
+			// Remove managed section
+			before := strings.TrimRight(existing[:startIdx], "\n")
+			after := strings.TrimLeft(existing[endIdx+len(endMarker):], "\n")
+
+			remaining := strings.TrimSpace(before + after)
+			if remaining == "" {
+				// File is now empty, delete it
+				return os.Remove(mergeFilePath)
+			}
+			return os.WriteFile(mergeFilePath, []byte(remaining+"\n"), 0644)
+		}
+		return nil
+	}
+
+	// Read existing file
+	existing := ""
+	if data, err := os.ReadFile(mergeFilePath); err == nil {
+		existing = string(data)
+	}
+
+	// Generate new merged content
+	newContent := mergeContent.Generate()
+
+	// Update file
+	finalContent := UpdateExistingFile(existing, newContent)
+	return os.WriteFile(mergeFilePath, []byte(finalContent), 0644)
 }
 
 // UninstallResult contains the result of an uninstall operation.
